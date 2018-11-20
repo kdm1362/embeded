@@ -43,7 +43,7 @@ typedef struct detectedImage {
 	int y;            //y좌표
 	int degree;         //기울기
 	int s_flag;         //성공 여부 확인 0실패 1성공
-	int detected_object;
+	// int detected_object; 호출단에서 검출할 색을 지정
 };      //영상이 모든 장애물을 합해서 디텍할까? 아니면 각각 디텍할까?
 
 detectedImage current_image;
