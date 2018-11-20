@@ -11,18 +11,33 @@
 using namespace std;
 using namespace cv;
 
-Mat mask_oper(Mat img);
+Mat mask_oper(Mat img, char color);
 void coordinate(Mat img_mask, Mat img, Mat img_hsv);
 int camStart();
 
-Mat mask_oper(Mat img){
+Mat mask_oper(Mat img, char color){
 
 	Mat img_hsv;
 	Mat img_mask;
 
 	cvtColor(img, img_hsv, COLOR_BGR2HSV);
-	inRange(img_hsv, Scalar(26,64,71), Scalar(36, 255, 255), img_mask); //yellow
-	inRange(img_hsv, Scalar(26,64,71), Scalar(36, 255, 255), img_mask);//white
+	switch(color){
+		case 'Y':
+		inRange(img_hsv, Scalar(26,64,71), Scalar(36, 255, 255), img_mask);	//yellow
+		break;
+		case 'R':
+		inRange(img_hsv, Scalar(26,64,71), Scalar(36, 255, 255), img_mask);	//*red
+		break;
+		case 'B':
+		inRange(img_hsv, Scalar(26,64,71), Scalar(36, 255, 255), img_mask);	//*blue
+		break;
+		case 'G':
+		inRange(img_hsv, Scalar(26,64,71), Scalar(36, 255, 255), img_mask);	//*green
+		break;
+		case 'W':
+		inRange(img_hsv, Scalar(26,64,71), Scalar(36, 255, 255), img_mask);	//*white
+		break;
+	}
 
 	cv::imshow("frame",img_mask);
 	cv::imshow("hsv",img_hsv);
@@ -134,3 +149,4 @@ int camStart(){
 	}
 	Camera.release();
 } 
+	
