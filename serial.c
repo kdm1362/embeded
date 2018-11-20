@@ -19,6 +19,7 @@ int action(int fd, int key) //명령을 보내기 위해 사용
 	time_t picker;
 	time(&picker);
 
+	//명령 
 	printf("%d : sending \n", key);
 	fflush(stdout);
 	serialPutchar(fd, key);
