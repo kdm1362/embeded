@@ -12,8 +12,8 @@
 int action(int fd, int key) //명령을 보내기 위해 사용
 {
 	int isEnd = 0;
-	int temp = 0;
-	int received = 0;
+	int received[20] = {0,};
+	int index = 1;	//0 일경우 received 세그폴트
 
 	//38명령이 씹혔을 경우 멈추지 않게 하기위한 코드
 	time_t picker;
@@ -29,18 +29,21 @@ int action(int fd, int key) //명령을 보내기 위해 사용
 		if (time(NULL) - picker <= 5) { //한 동작은 5초 내에 끝이나야함
 			while (serialDataAvail(fd))
 			{
-				temp = serialGetchar(fd);
-				printf("%d : received \n", temp);
-				if (received == 38) isEnd = 1;	//시리얼 통신을 수신할 수 있는지 체크
-				else received = temp;
+				received[index] = serialGetchar(fd);
+				printf("%d : received \n", received[index]);
+				if (received[index] == 38) isEnd = 1;	//시리얼 통신을 수신할 수 있는지 체크
 
 				fflush(stdout);
+				index++;
 				delay(30);		//값이 작을수록 잛은 동작에서 반응이 빨라짐
 			}
 		}
-		else return -1;	//통신이상으로 38반응이 5초이상 없을경우 무한루프 방지
+		else {
+			action(fd, BASIC_ATTITUDE_2);
+			return -1;	//통신이상으로 38반응이 5초이상 없을경우 무한루프 방지
+		}
 	}
-	return received;	//수신한 값이 없을경우 0을 반환
+	return received[index-1];	//수신한 값이 없을경우 0을 반환
 }
 
 int start_uart() { //시리얼 초기화
