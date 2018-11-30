@@ -25,7 +25,7 @@ int action(int fd, int key) //명령을 보내기 위해 사용
 	serialPutchar(fd, key);
 
 	// switch 문으로 일일이 delay설정하지 않고 38(동작완료코드)가 왔는지 확인하는 코드로 대체
-	while(isEnd != 1){
+	while (isEnd != 1) {
 		if (time(NULL) - picker <= 5) { //한 동작은 5초 내에 끝이나야함
 			while (serialDataAvail(fd))
 			{
@@ -43,16 +43,16 @@ int action(int fd, int key) //명령을 보내기 위해 사용
 	return received;	//수신한 값이 없을경우 0을 반환
 }
 
-int start_uart(){ //시리얼 초기화
+int start_uart() { //시리얼 초기화
 	int fd;
 
-	if((fd = serialOpen("/dev/ttyAMA0", 4800)) < 0)
+	if ((fd = serialOpen("/dev/ttyAMA0", 4800)) < 0)
 	{
 		fprintf(stderr, "Unable to open: %s\n", strerror(errno));
 		return -1;
 	}
 
-	if(wiringPiSetup() == -1)
+	if (wiringPiSetup() == -1)
 	{
 		fprintf(stdout, "Unable to start wiringPi : %s\n", strerror(errno));
 		return -1;
