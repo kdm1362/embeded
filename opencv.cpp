@@ -86,7 +86,6 @@ detectedImage mask_oper(int obj_color, int detector_flag) {
 		break;
 
 	}
-
 	/*
 if(im.detected_color== DETECT_RED)
 		inRange(img_hsv, Scalar(LOW_RED_H, LOW_RED_S, LOW_RED_V), Scalar(HIGH_RED_H, HIGH_RED_S, HIGH_RED_V), img_mask); //red
@@ -379,12 +378,13 @@ raspicam::RaspiCam_Cv cam_init() {
 	//int obj_color=DETECT_YELLOW;
 	if (!Camera.open()) { cerr << "Error opening the camera" << endl; return -1; }
 
-	Camera.grab();
+	return Camera;
 }
 detectedImage robot_capture(raspicam::RaspiCam_Cv Camera, int obj_color, int detector_flag) {
 	Mat image;
 	detectedImage result;
 
+	Camera.grab();
 	Camera.retrieve(image);
 
 	cv::imwrite("current_img.bmp", image);
