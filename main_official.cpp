@@ -1,50 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#include <wiringPi.h>
-#include <wiringSerial.h>
-
-//각 이동 모션은 몇 발자국 이동하는지 확인 필요
-#define TURN_LEFT_10				1
-#define GO_FORWARD_SLOW_6			2
-#define TURN_RIGHT_10				3
-#define TURN_LEFT_3					4
-#define CHECK_DISTANCE				5
-#define TURN_RIGHT_3				6
-#define TURN_LEFT_20				7
-#define GO_FORWARD_SLOW				8
-#define TURN_RIGHT_20				9
-#define GO_FORWARD_FAST				10
-#define GO_FORWARD_KEEP				11
-#define GO_BACKWARD_KEEP			12
-#define GO_RIGHT_KEEP				13
-#define GO_LEFT_KEEP				14
-#define GO_LEFT_20					15
-#define SHUTDOWN					16
-#define LEFT_HEAD_90				17
-#define GYRO_OFF					18
-#define TURN_RIGHT_60				19
-#define GO_RIGHT_20					20
-#define FRONT_HEAD					21
-#define TURN_LEFT_45				22
-#define ERROR_SOUND					23   //무슨 명령인지 체크 필요.
-#define TURN_RIGTH_45				24
-#define TURN_LEFT_60				25
-#define BASIC_POSTURE				26
-#define RIGHT_HEAD_90				27
-#define LEFT_HEAD_45				28
-#define DOWN_HEAD_80				29
-#define RIGHT_HEAD_45				30
-#define DOWN_HEAD_60				31
-#define GO_BACKWARD_SLOW			32
-
-typedef struct detectedImage {
-	int x;            //x좌표
-	int y;            //y좌표
-	int degree;         //기울기
-	int s_flag;         //성공 여부 확인 0실패 1성공
-	// int detected_object; 호출단에서 검출할 색을 지정
-};      //영상이 모든 장애물을 합해서 디텍할까? 아니면 각각 디텍할까?
+#include "protocol.h"
 
 detectedImage current_image;
 detectedImage line_image;
@@ -56,7 +13,7 @@ int stage_count = 0;
 
 extern int start_uart();
 extern int action(int, int);
-extern int camStart();
+extern detectedImage robot_capture(int obj_color, int detector_flag);
 
 //각 영상 처리는 다른 함수로 확인하는게 편하지 않을까
 detectedImage detect_line();         //선 확인
@@ -65,7 +22,7 @@ detectedImage detect_stair();         //계단 디텍
 detectedImage detect_valve();         //밸브 타워 확인
 // detectedImage detect_line_barricade();   //선 + 장애물 확인?(선택필요)
 
-void follow_line();
+void follow_line(detectedImage current_image);
 //각 장애물 단계 함수
 void start();
 void stairs();
@@ -83,11 +40,11 @@ int main() {
 	else {
 		while (1) {
 			switch (stage_count) {
-			case 6: before_tunnel();      break;
-			case 7: tunnel();               break;
-			case 8: before_valve();      break;
-			case 9: valve();               break;
-			default: break;
+			case 6: before_tunnel();	break;
+			case 7: tunnel();			break;
+			case 8: before_valve();		break;
+			case 9: valve();			break;
+			default:					break;
 			}
 			if (stage_count > 9)
 				break;
@@ -100,44 +57,37 @@ int main() {
 
 detectedImage detect_line() {                     //선 디텍
 	detectedImage image_info;
-
-	//선 영상 처리 코드.
-
+	image_info = robot_capture(DETECT_YELLOW, DETECT_LINE);
 	return image_info;
 }
 
-detectedImage detect_barricade() {                  //장애물 디텍
+detectedImage detect_barricade() {                  //장애물 디텍, 초록 빨강 구별 필요
 	detectedImage image_info;
+	detectedImage image_info2;
 
-	//장애물 영상 처리 코드.
-
-	return image_info;
-}
-//or
-detectedImage detect_barricade() {                  //선 + 장애물 디텍
-	detectedImage image_info;
-
-	//선 영상 처리 코드
-	//장애물 영상 처리 코드.
+	image_info = robot_capture(DETECT_GREEN, DETECT_OBJECT);
+	image_info2 = robot_capture(DETECT_RED, DETECT_OBJECT);
 
 	return image_info;
 }
+
 detectedImage detect_stair() {                     //계단 디텍
 	detectedImage image_info;
 
 	//계단 디텍 코드
+	image_info = robot_capture(DETECT_RED, DETECT_LINE);
 
 	return image_info;
 }
 detectedImage detect_valve() {                     //문 디텍
 	detectedImage image_info;
-
+	image_info = robot_capture(DETECT_GREEN, DETECT_LINE);
 	//문 영상 처리 코드.
 
 	return image_info;
 }
 
-void follow_line() {
+void follow_line(detectedImage current_image) {
 	if (current_image.degree > lean_to_the_left) { //선이 왼쪽으로 기울면
 		action(uart_serial, TURN_LEFT_10);
 	}
