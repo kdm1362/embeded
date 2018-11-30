@@ -26,9 +26,9 @@
 
 #define LOW_BLUE_H 80
 #define HIGH_BLUE_H 140
-#define LOW_BLUE_S 65
+#define LOW_BLUE_S 80
 #define HIGH_BLUE_S 255
-#define LOW_BLUE_V 65
+#define LOW_BLUE_V 70
 #define HIGH_BLUE_V 255
 
 #define LOW_YELLOW_H 12
